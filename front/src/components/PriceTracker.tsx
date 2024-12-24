@@ -1,3 +1,4 @@
+// PriceTracker.tsx
 import React, { useEffect, useState } from 'react';
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from 'chart.js';
@@ -25,13 +26,8 @@ const PriceTracker = () => {
             const prices = JSON.parse(event.data);
             prices.forEach((ticker: { s: string; c: string; }) => {
                 if (ticker.s === 'BTCUSDT') {
-                    const newPrice = parseFloat(ticker.c);
-                    setPrice(newPrice);
-                    setPriceData(prevData => {
-                        const updatedData = [...prevData, newPrice];
-                        // Giữ lại tối đa 50 phần tử cuối cùng
-                        return updatedData.length > 50 ? updatedData.slice(-50) : updatedData;
-                    });
+                    setPrice(parseFloat(ticker.c));
+                    setPriceData(prevData => [...prevData, parseFloat(ticker.c)]);
                 }
             });
         };
@@ -83,7 +79,7 @@ const PriceTracker = () => {
     };
 
     const data = {
-        labels: priceData.map((_, index) => index + 1), // Cập nhật nhãn theo dữ liệu cắt
+        labels: priceData.map((_, index) => index + 1),
         datasets: [
             {
                 label: 'BTCUSDT Price',
