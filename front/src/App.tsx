@@ -1,5 +1,5 @@
 import { createWeb3Modal, defaultConfig,  useWeb3ModalAccount, useWeb3ModalProvider } from "@web3modal/ethers/react";
-import { BrowserProvider, Contract, ethers, formatEther, parseEther} from 'ethers'
+import { BrowserProvider, Contract, ethers, parseEther} from 'ethers'
 import PriceTracker from "./components/PriceTracker.tsx"
 import { shortenAddress } from './lib/utils'
 import { useWeb3Modal } from '@web3modal/ethers/react'
