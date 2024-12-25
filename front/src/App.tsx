@@ -54,6 +54,20 @@ function App() {
       }
     }
   }
+  const getMoneyWinner = async () => {
+    if(walletProvider) {
+      try {
+        const browserProvider = new BrowserProvider(walletProvider);
+        const signerProvider = browserProvider.getSigner();
+        const contract = new Contract(contractAdr, contractABI, await signerProvider);
+        const transaction = await contract.getMoneyWinner();
+        await transaction.wait();
+      } catch (error) {
+        console.error("Error confirming deal:", error);
+        alert("Error confirming deal, please try again!");
+      }
+    }
+  }
   const returnResult = async(input: number) => {
     if(walletProvider) {
       try {
@@ -68,6 +82,7 @@ function App() {
     }
 
   }
+
   return (
     <div>
       <header className="mx-auto px-2 p-4 border-b">
@@ -96,7 +111,7 @@ function App() {
               </div>
             </div>
           </header>
-      <PriceTracker/>
+      <PriceTracker returnResult={returnResult}/>
     </div>
   )
 }

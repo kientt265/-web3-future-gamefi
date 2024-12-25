@@ -7,10 +7,11 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 // Đăng ký các thành phần cần thiết và plugin annotation
 Chart.register(...registerables, annotationPlugin);
 
-const PriceTracker = () => {
+const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void }) => {
     const [price, setPrice] = useState<number | null>(null);
     const [priceData, setPriceData] = useState<number[]>([]);
     const [horizontalLine, setHorizontalLine] = useState<number | null>(null);
+    const [endColumn, setEndColumn] = useState<number | null>(null);
     const [timer, setTimer] = useState<number>(30);
     const [gameResult, setGameResult] = useState<string | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
@@ -55,10 +56,14 @@ const PriceTracker = () => {
         } else if (timer === 0 && horizontalLine !== null) {
             if (price !== null) {
                 if (price < horizontalLine) {
-                    setGameResult("Người chơi thua cuộc");
+                    setGameResult("Future Up");
+                    returnResult(0); // Gọi hàm returnResult với input 0
                 } else {
-                    setGameResult("Người chơi chiến thắng");
+                    setGameResult("Future Down");
+                    returnResult(1); // Gọi hàm returnResult với input 1
                 }
+                // Đặt cột đỏ sau khi đồng hồ đếm kết thúc
+                setEndColumn(currentIndex !== null ? currentIndex + 30 : null);
             }
         }
 
@@ -75,6 +80,7 @@ const PriceTracker = () => {
             setTimer(30);
             setGameResult(null);
             setCurrentIndex(priceData.length); // Lưu vị trí của Current
+            setEndColumn(priceData.length + 30); // Đặt cột đỏ ở x = currentIndex + 30
         }
     };
 
@@ -126,6 +132,18 @@ const PriceTracker = () => {
                         borderWidth: 2,
                         label: {
                             content: 'End',
+                            enabled: true,
+                            position: 'top'
+                        }
+                    } : null,
+                    redColumn: endColumn !== null ? {
+                        type: 'line',
+                        xMin: endColumn,
+                        xMax: endColumn,
+                        borderColor: 'red',
+                        borderWidth: 2,
+                        label: {
+                            content: 'End Column',
                             enabled: true,
                             position: 'top'
                         }
