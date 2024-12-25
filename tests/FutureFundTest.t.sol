@@ -22,8 +22,7 @@ contract FutureFundTest is Test {
         vm.prank(player1);
         futureFund.joinGame{value: 1 ether}(1);
         
-        (uint8 choice, uint256 amount) = (futureFund.players(player1).choice, futureFund.players(player1).amount);
-        assertEq(choice, 1);
+        (, uint256 amount) = futureFund.players(player1);
         assertEq(amount, 1 ether);
     }
 

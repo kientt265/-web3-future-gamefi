@@ -1,4 +1,3 @@
-// PriceTracker.tsx
 import React, { useEffect, useState } from 'react';
 import { Line } from "react-chartjs-2";
 import { Chart, registerables } from 'chart.js';
@@ -7,7 +6,12 @@ import annotationPlugin from 'chartjs-plugin-annotation';
 // Đăng ký các thành phần cần thiết và plugin annotation
 Chart.register(...registerables, annotationPlugin);
 
-const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void }) => {
+interface PriceTrackerProps {
+    returnResult: (currentTurn: number, result: number) => void;
+    currentTurn: number | null; // Kiểu dữ liệu của currentTurn
+}
+
+const PriceTracker: React.FC<PriceTrackerProps> = ({ returnResult, currentTurn }) => {
     const [price, setPrice] = useState<number | null>(null);
     const [priceData, setPriceData] = useState<number[]>([]);
     const [horizontalLine, setHorizontalLine] = useState<number | null>(null);
@@ -15,6 +19,7 @@ const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void
     const [timer, setTimer] = useState<number>(30);
     const [gameResult, setGameResult] = useState<string | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const [isResultReturned, setIsResultReturned] = useState<boolean>(false);  // Thêm trạng thái kiểm tra kết quả đã trả chưa
 
     useEffect(() => {
         const ws = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
@@ -53,17 +58,24 @@ const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void
             countdown = setInterval(() => {
                 setTimer(prev => prev - 1);
             }, 1000);
-        } else if (timer === 0 && horizontalLine !== null) {
+        } else if (timer === 0 && horizontalLine !== null && !isResultReturned) {  // Kiểm tra nếu kết quả chưa trả
             if (price !== null) {
                 if (price < horizontalLine) {
                     setGameResult("Future Up");
-                    returnResult(0); // Gọi hàm returnResult với input 0
+                    if (currentTurn !== null) {
+                        returnResult(currentTurn, 0);
+                    }
                 } else {
                     setGameResult("Future Down");
-                    returnResult(1); // Gọi hàm returnResult với input 1
+                    if (currentTurn !== null) {
+                        returnResult(currentTurn, 1);
+                    }
                 }
                 // Đặt cột đỏ sau khi đồng hồ đếm kết thúc
                 setEndColumn(currentIndex !== null ? currentIndex + 30 : null);
+
+                // Đánh dấu đã trả kết quả
+                setIsResultReturned(true);  // Đánh dấu kết quả đã được trả
             }
         }
 
@@ -72,7 +84,7 @@ const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void
                 clearInterval(countdown);
             }
         };
-    }, [timer, horizontalLine, price]);
+    }, [timer, horizontalLine, price, currentTurn, currentIndex, isResultReturned]);  // Thêm isResultReturned vào mảng phụ thuộc
 
     const handleButtonClick = () => {
         if (price !== null) {
@@ -81,6 +93,7 @@ const PriceTracker = ({ returnResult }: { returnResult: (result: number) => void
             setGameResult(null);
             setCurrentIndex(priceData.length); // Lưu vị trí của Current
             setEndColumn(priceData.length + 30); // Đặt cột đỏ ở x = currentIndex + 30
+            setIsResultReturned(false);  // Đặt lại flag khi bắt đầu một phiên mới
         }
     };
 
