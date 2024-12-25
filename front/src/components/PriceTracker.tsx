@@ -139,7 +139,7 @@ const PriceTracker = () => {
         <div>
             <h1>Price Tracker</h1>
             {price ? <p>Price of BTCUSDT: {price}</p> : <p>Loading...</p>}
-            <button onClick={handleButtonClick}>Show Price Line</button>
+            <button className="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700" onClick={handleButtonClick}>Show Price Line</button>
             <p>Thời gian còn lại: {timer} giây</p>
             {gameResult && <p>{gameResult}</p>}
             <Line data={data} options={options as any} />
